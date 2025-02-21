@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>非遗文化传承网</title>
+    <style>
+      /* 基础样式 */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Microsoft YaHei", sans-serif;
+      }
+
+      html,
+      body {
+        height: 100%;
+        overflow: hidden;
+      }
+
+      /* 全屏滚动容器 */
+      .fullpage-container {
+        height: 100vh;
+        overflow-y: auto;
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+      }
+
+      /* 页面区块 */
+      .section {
+        height: 100vh;
+        scroll-snap-align: start;
+        position: relative;
+      }
+
+      /* 导航栏样式 */
+      .navbar {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: rgba(40, 40, 40, 0.9);
+        backdrop-filter: blur(8px);
+        z-index: 1000;
+        padding: 1rem 0;
+        transition: background 0.3s;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        color: #fff;
+        font-size: 1.8rem;
+        font-family: "STKaiti", cursive;
+      }
+
+      .nav-menu {
+        display: flex;
+        gap: 2rem;
+        list-style: none;
+      }
+
+      .nav-menu a {
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+
+      .nav-menu a:hover {
+        color: #cdaa7d;
+      }
+
+      /* 日期显示 */
+      #current-date {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.9rem;
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      /* 轮播图样式 */
+      .banner-section {
+        height: 100vh;
+        position: relative;
+      }
+
+      .slides {
+        height: 100%;
+        position: relative;
+      }
+
+      .slide {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 1s;
+        background-size: cover;
+        background-position: center;
+      }
+
+      .slide.active {
+        opacity: 1;
+      }
+
+      /* 新闻动态 */
+      .news-section {
+        background: url("images/4.jpg") no-repeat center center fixed;
+        /*兼容浏览器版本*/
+        -webkit-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+      }
+
+      .news-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        position: relative;
+        left: 100px;
+        top: 55px;
+      }
+
+      .news-card {
+        background: #d60b0b;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        left: 100px;
+        top: 500px;
+      }
+
+     /* 地图区域 */
+     .map-section {
+        background: url("images/map2.jpg") no-repeat center center fixed;
+        padding: 80px 0;
+      }
+
+      .map-wrapper {
+        display: flex;
+        gap: 40px;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .map-container {
+        flex: 1;
+        max-width: 1000px;
+        height: 650px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .map-side-image {
+        flex: 1;
+        max-width: 700px;
+        height: 650px;
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+        top: -30px;
+        left: 100px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .map-image,
+      .side-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s;
+      }
+
+      .map-image:hover,
+      .side-image:hover {
+        transform: scale(1.03);
+      }
+
+      /* 响应式设计 */
+      @media (max-width: 1200px) {
+        .map-container {
+          height: 400px;
+        }
+        .map-side-image {
+          height: 350px;
+        }
+      }
+
+      @media (max-width: 992px) {
+        .map-wrapper {
+          flex-direction: column;
+        }
+        .map-container,
+        .map-side-image {
+          max-width: 100%;
+          height: 400px;
+        }
+        .map-side-image {
+          top: 0;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .news-grid {
+          left: 20px;
+          top: 80px;
+        }
+        .news-card {
+          left: 0;
+          top: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+      <div class="container">
+        <div class="logo">非遗传承</div>
+        <ul class="nav-menu">
+          <li><a href="#home" class="active">首页</a></li>
+          <li><a href="#heritage">非遗传承</a></li>
+          <li><a href="#news">新闻动态</a></li>
+          <li><a href="#products">特色产品</a></li>
+          <li><a href="#contact">联系我们</a></li>
+        </ul>
+        <div id="current-date"></div>
+      </div>
+    </nav>
+
+    <!-- 全屏滚动容器 -->
+    <div class="fullpage-container">
+      <!-- 轮播图区块 -->
+      <section class="section banner-section" id="home">
+        <div class="slides">
+          <div
+            class="slide active"
+            style="background-image: url('images/1.jpg')"
+          ></div>
+          <div
+            class="slide"
+            style="background-image: url('images/2.jpg')"
+          ></div>
+
+          <div
+            class="slide"
+            style="background-image: url('images/3.jpg')"
+          ></div>
+        </div>
+      </section>
+
+      <!-- 新闻区块 -->
+
+      <section class="section news-section" id="news">
+        <div class="container">
+          <h2 class="section-title">最新动态</h2>
+          <div class="news-grid">
+            <div class="news-card">
+              <h3>非遗年味浓</h3>
+              <p class="date">2025-2-10</p>
+              <p>
+                金龙呈祥送旧岁，银蛇献瑞迎新年。1月31日、2月1日（大年初三、初四），CCTV-1央视综合频道20:00档《2025年非遗晚会》（上、下两集）陪您一起非遗过大年。
+                2025年农历乙巳蛇年，也是“春节——中国人庆祝传统新年的社会实践”列入联合国教科文组织人类非物质文化遗产代表作名录的首年。由中央广播电视总台与文化和旅游部联合摄制的新春特别节目《2025年非遗晚会》在河北省雄安新区录制，全国近千名非遗传承人齐聚一堂，跟观众朋友们一起“非遗过大年”，通过300余项精彩的代表性非遗项目，展现非遗的传承活力与无限魅力。
+              </p>
+            </div>
+
+            <div class="news-card">
+              <h3>成功申遗后的首个春节我们怎么过</h3>
+              <p class="date">2025-1-23</p>
+              <p>
+                二十三，糖瓜粘；二十四，扫房子……”新春将至，迎年、忙年的氛围越来越浓。街头巷尾飘荡欢快的旋律、挂起火红的灯笼；集市上，挂满摆满寓意吉祥的春联、栩栩如生的剪纸；返乡的游子脚步匆匆，奔赴团圆……神州大地，奏响新春序曲。
+                我们即将迎来成功申遗后的首个春节，中国最重要的传统节日走向世界，也在中华大地激起时代回响。全国各地精心谋划，各具特色的非遗表演、热闹喜庆的民俗活动轮番上演。这个中国年，欢乐祥和，四海同春。
+              </p>
+            </div>
+
+            <div class="news-card">
+              <h3>非遗进校园</h3>
+              <p class="date">2025-1-23</p>
+              <p>
+                水牛儿，水牛儿，先出来犄角后出了头儿……”这一传承多年的北京民谣于近日在北京市八一学校唱响。童谣中积淀了深厚的文化，蕴涵着丰富的教育内容。北京市八一学校民族民间音乐传承工作室成立暨《唱响家乡的歌》讲唱会于近日在北京举行。学生通过学习北京民歌，更深切地感受到非遗的魅力。
+
+“民族民间音乐是中华民族传统文化的瑰宝，它承载着我们华夏民族的历史记忆、文化根脉和精神追求。”北京市八一学校党委书记牛震云说，民族民间音乐是文化自信的重要源泉。
+
+            <!-- 添加更多新闻卡片 -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 地图区块 -->
+        <section class="section map-section" id="map">
+        <div class="container">
+          <h2 class="section-title"></h2>
+          <div class="map-wrapper">
+            <div class="map-container">
+              <img src="images/map.png" alt="非遗分布地图" class="map-image" />
+            </div>
+            <div class="map-side-image">
+              <img
+                src="images/map3.png"
+                alt="非遗项目分布"
+                class="side-image"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    
+    
+  
+      // 日期显示
+      function updateDate() {
+        const dateElement = document.getElementById("current-date");
+        const now = new Date();
+        const options = { year: "numeric", month: "long", day: "numeric" };
+        dateElement.textContent = now.toLocaleDateString("zh-CN", options);
+      }
+      updateDate();
+
+      // 全屏滚动控制
+      let isScrolling = false;
+      window.addEventListener(
+        "wheel",
+        (e) => {
+          if (isScrolling) return;
+          isScrolling = true;
+
+          const sections = document.querySelectorAll(".section");
+          const currentIndex = Array.from(sections).findIndex((s) =>
+            s.classList.contains("active")
+          );
+          let targetIndex = currentIndex;
+
+          if (e.deltaY > 0 && currentIndex < sections.length - 1) {
+            targetIndex = currentIndex + 1;
+          } else if (e.deltaY < 0 && currentIndex > 0) {
+            targetIndex = currentIndex - 1;
+          }
+
+          sections[currentIndex].classList.remove("active");
+          sections[targetIndex].classList.add("active");
+          sections[targetIndex].scrollIntoView({ behavior: "smooth" });
+
+          setTimeout(() => {
+            isScrolling = false;
+          }, 1000);
+        },
+        { passive: false }
+      );
+
+      // 轮播图功能
+      let currentSlide = 0;
+      const slides = document.querySelectorAll(".slide");
+
+      setInterval(() => {
+        slides[currentSlide].classList.remove("active");
+        currentSlide = (currentSlide + 1) % slides.length;
+        slides[currentSlide].classList.add("active");
+      }, 5000);
+
+      // 导航栏交互
+      document.querySelectorAll(".nav-menu a").forEach((link) => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          const target = document.querySelector(link.getAttribute("href"));
+          target.scrollIntoView({ behavior: "smooth" });
+        });
+      });
+    </script>
+  </body>
+</html>
